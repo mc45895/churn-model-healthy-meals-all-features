@@ -37,10 +37,10 @@ col1, col2 = st.columns(2)
 with col1:
 
     age = st.number_input(
-        "Age (20-54)",
+        "Age (20-100)",
         min_value=20,
-        max_value=54,
-        value=36
+        max_value=100,
+        value=35
     )
     
     income_level = st.selectbox(
@@ -131,9 +131,9 @@ with col2:
     )
     
     active_quarters = st.number_input(
-        "Active Quarters (0-5)",
+        "Active Quarters (0-4)",
         min_value=0,
-        max_value=5,
+        max_value=4,
         value=3
     )
 
