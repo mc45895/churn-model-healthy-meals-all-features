@@ -101,9 +101,9 @@ col1, col2 = st.columns(2)
 with col1:
 
     total_sessions = st.number_input(
-        "Total Sessions (0-15,601)",
+        "Total Sessions (0-262)",
         min_value=0,
-        max_value=15601,
+        max_value=262,
         value=50
     )
 
