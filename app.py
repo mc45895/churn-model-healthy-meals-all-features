@@ -70,9 +70,10 @@ with col2:
 
     tech_comfort_score = st.number_input(
         "Tech Comfort Score",
-        min_value=0,
-        value=5
-    )
+        min_value=1,
+        max_value=5,
+        value=3
+)
 
 # ==========================================
 # Device Information
