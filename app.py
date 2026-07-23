@@ -4,7 +4,6 @@ import pandas as pd
 import pickle
 from datetime import date
 
-
 # Load model and encoder
 with open("churn_rf_healthy_meals_all_features.pkl", "rb") as f:
     model = pickle.load(f)
@@ -12,96 +11,73 @@ with open("churn_rf_healthy_meals_all_features.pkl", "rb") as f:
 with open("churn_encoder_healthy_meals_all_features.pkl", "rb") as f:
     encoder = pickle.load(f)
 
-
 # ==========================================
 # Page
 
-st.title("Healthy Meals Renewal Prediction")
+st.set_page_config(
+    page_title="Healthy Meals Renewal Prediction",
+    page_icon="🥗",
+    layout="centered"
+)
+
+st.title("🥗 Healthy Meals Renewal Prediction")
 st.write(
     "Enter customer information to predict renewal probability."
 )
 
+# ==========================================
+# Customer Features
+
+st.header("Customer Features")
 
 # ==========================================
-# Input features
+# Demographic Features
 
-st.subheader("Customer Features")
+st.subheader("Demographic Features")
 
+col1, col2 = st.columns(2)
 
-# Numerical features
+with col1:
 
-total_sessions = st.number_input(
-    "Total Sessions",
-    min_value=0,
-    value=50
-)
+    age = st.number_input(
+        "Age",
+        min_value=18,
+        max_value=100,
+        value=35
+    )
 
-gross_session_length = st.number_input(
-    "Gross Session Length",
-    min_value=0.0,
-    value=500.0
-)
+    income_level = st.selectbox(
+        "Income Level",
+        [
+            "High",
+            "Low",
+            "Medium",
+            "Very High"
+        ]
+    )
 
-active_days = st.number_input(
-    "Active Days",
-    min_value=0,
-    value=30
-)
+with col2:
 
-active_quarters = st.number_input(
-    "Active Quarters",
-    min_value=0,
-    max_value=4,
-    value=4
-)
+    education = st.selectbox(
+        "Education",
+        [
+            "Graduate",
+            "High School",
+            "Other",
+            "Post-Graduate"
+        ]
+    )
 
-h2_sessions = st.number_input(
-    "H2 Sessions (Jul-Dec)",
-    min_value=0,
-    value=25
-)
-
-last_activity_date = st.date_input(
-    "Last Activity Date",
-    value=date(2024,12,20)
-)
-
-age = st.number_input(
-    "Age",
-    min_value=18,
-    max_value=100,
-    value=35
-)
-
-tech_comfort_score = st.number_input(
-    "Tech Comfort Score",
-    min_value=0,
-    value=5
-)
+    tech_comfort_score = st.number_input(
+        "Tech Comfort Score",
+        min_value=0,
+        value=5
+    )
 
 # ==========================================
-# Categorical features
+# Device Information
 
-
-income_level = st.selectbox(
-    "Income Level",
-    [
-        "High",
-        "Low",
-        "Medium",
-        "Very High"
-    ]
-)
-
-education = st.selectbox(
-    "Education",
-    [
-        "Graduate",
-        "High School",
-        "Other",
-        "Post-Graduate"
-    ]
-)
+st.subheader("Device Information")
 
 device_type = st.selectbox(
     "Device Type",
@@ -113,13 +89,56 @@ device_type = st.selectbox(
 )
 
 # ==========================================
+# Usage Features
+
+st.subheader("Usage Features")
+
+col1, col2 = st.columns(2)
+
+with col1:
+
+    total_sessions = st.number_input(
+        "Total Sessions",
+        min_value=0,
+        value=50
+    )
+
+    active_days = st.number_input(
+        "Active Days",
+        min_value=0,
+        value=30
+    )
+
+    h2_sessions = st.number_input(
+        "H2 Sessions (Jul-Dec)",
+        min_value=0,
+        value=25
+    )
+
+with col2:
+
+    gross_session_length = st.number_input(
+        "Gross Session Length",
+        min_value=0.0,
+        value=500.0
+    )
+
+    active_quarters = st.number_input(
+        "Active Quarters",
+        min_value=0,
+        max_value=4,
+        value=4
+    )
+
+    last_activity_date = st.date_input(
+        "Last Activity Date",
+        value=date(2024, 12, 20)
+    )
+
+# ==========================================
 # Prediction
 
-if st.button("Predict"):
-
-    # ------------------------------
-    # Create derived features
-
+if st.button("Predict", use_container_width=True):
 
     avg_sessions_per_active_quarter = (
         total_sessions / active_quarters
@@ -151,69 +170,32 @@ if st.button("Predict"):
         else 0
     )
 
-    reference_date = date(2025,1,1)
+    reference_date = date(2025, 1, 1)
 
     days_since_last_activity = (
         reference_date - last_activity_date
     ).days
 
-
-    # ------------------------------
-    # Raw dataframe
-
     input_df = pd.DataFrame({
 
-        "TOTAL_SESSIONS":
-            [total_sessions],
+        "TOTAL_SESSIONS":[total_sessions],
+        "GROSS_SESSION_LENGTH":[gross_session_length],
+        "ACTIVE_DAYS":[active_days],
+        "ACTIVE_QUARTERS":[active_quarters],
+        "AVG_SESSIONS_PER_ACTIVE_QUARTER":[avg_sessions_per_active_quarter],
+        "H2_SESSIONS":[h2_sessions],
+        "H2_H1_SESSION_RATIO":[h2_h1_session_ratio],
+        "AVG_SESSION_LENGTH":[avg_session_length],
+        "SESSIONS_PER_ACTIVE_DAY":[sessions_per_active_day],
+        "QUARTER_ACTIVITY_RATIO":[quarter_activity_ratio],
+        "DAYS_SINCE_LAST_ACTIVITY":[days_since_last_activity],
+        "AGE":[age],
+        "TECH_COMFORT_SCORE":[tech_comfort_score],
+        "INCOME_LEVEL":[income_level],
+        "EDUCATION":[education],
+        "DEVICE_TYPE":[device_type]
 
-        "GROSS_SESSION_LENGTH":
-            [gross_session_length],
-
-        "ACTIVE_DAYS":
-            [active_days],
-
-        "ACTIVE_QUARTERS":
-            [active_quarters],
-
-        "AVG_SESSIONS_PER_ACTIVE_QUARTER":
-            [avg_sessions_per_active_quarter],
-
-        "H2_SESSIONS":
-            [h2_sessions],
-
-        "H2_H1_SESSION_RATIO":
-            [h2_h1_session_ratio],
-
-        "AVG_SESSION_LENGTH":
-            [avg_session_length],
-
-        "SESSIONS_PER_ACTIVE_DAY":
-            [sessions_per_active_day],
-
-        "QUARTER_ACTIVITY_RATIO":
-            [quarter_activity_ratio],
-
-        "DAYS_SINCE_LAST_ACTIVITY":
-            [days_since_last_activity],
-
-        "AGE":
-            [age],
-
-        "TECH_COMFORT_SCORE":
-            [tech_comfort_score],
-
-        "INCOME_LEVEL":
-            [income_level],
-
-        "EDUCATION":
-            [education],
-
-        "DEVICE_TYPE":
-            [device_type]
     })
-
-    # ------------------------------
-    # Encoding
 
     categorical_cols = [
         "INCOME_LEVEL",
@@ -232,8 +214,6 @@ if st.button("Predict"):
         )
     )
 
-    # combine numeric + encoded
-
     final_input = pd.concat(
         [
             input_df.drop(
@@ -246,45 +226,37 @@ if st.button("Predict"):
         axis=1
     )
 
-    # Ensure same order as training
-
     final_input = final_input[
         model.feature_names_in_
     ]
-
-    # ------------------------------
-    # Prediction
 
     probabilities = model.predict_proba(
         final_input
     )[0]
 
     renewal_probability = probabilities[1]
-
     churn_probability = 1 - renewal_probability
 
-    # ------------------------------
-    # Result
+    st.divider()
 
     st.subheader("Prediction Result")
-    st.metric(
-        "Renewal Probability",
-        f"{renewal_probability:.2f}"
-    )
 
-    st.metric(
-        "Churn Probability",
-        f"{churn_probability:.2f}"
-    )
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric(
+            "Renewal Probability",
+            f"{renewal_probability:.1%}"
+        )
+
+    with col2:
+        st.metric(
+            "Churn Probability",
+            f"{churn_probability:.1%}"
+        )
 
     if renewal_probability >= 0.5:
-
-        st.success(
-            "Churn Risk: Low"
-        )
+        st.success("Churn Risk: Low")
 
     else:
-
-        st.warning(
-            "Churn Risk: High"
-        )
+        st.error("⚠️ Churn Risk: High")
